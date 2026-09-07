@@ -5,15 +5,25 @@
   "summary": "Application git-import-buddy migrée dans le projet Lovable actuel. Le build passe, le backend est synchronisé, l'authentification Google et le serveur OAuth sont activés.",
   "migrations": {
     "applied": [
+      "20260831072717",
       "20260831072734",
-      "consolidated_final_schema"
+      "20260831084940",
+      "20260904050535",
+      "20260904050550",
+      "20260904051600",
+      "20260904071256",
+      "20260904074019",
+      "20260905055849",
+      "20260905055904",
+      "20260907090021"
     ],
     "skipped": [
       "20260904071336"
     ],
     "notes": [
-      "La migration consolidée finalise les tables community_gallery, app_settings, user_quotas, les colonnes images_used/videos_used/video_pause_until sur daily_usage, promo_claimed_at sur profiles, plan_type/is_active sur subscriptions, et les fonctions de quotas images/vidéos.",
-      "La migration 20260904071336 a été omise car elle dupliquait les politiques créées par 20260904050535 et 20260904051600."
+      "Toutes les migrations du projet source ont été appliquées dans l'ordre.",
+      "La migration 20260904071336 a été omise car elle dupliquait les politiques créées par 20260904050535 et 20260904051600.",
+      "La migration consolidée 20260907090021 a été appliquée en fin de série pour garantir la cohérence finale."
     ]
   },
   "storage": {
