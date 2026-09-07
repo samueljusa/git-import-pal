@@ -14,6 +14,7 @@ import {
   Check,
   X,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import {
   getAdminAccess,
