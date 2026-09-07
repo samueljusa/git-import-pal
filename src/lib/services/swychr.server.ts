@@ -128,6 +128,7 @@ export async function fetchPayoutMethods(
 
 export type PaymentLinkInput = {
   countryCode: string;
+  paymentMethod: string;
   name: string;
   transactionId: string;
   amount: number;
@@ -154,6 +155,7 @@ export async function createPaymentLink(
 ): Promise<ApiResult<PaymentLink>> {
   const result = await callSwychr("/api/payin/create_payment_links", {
     country_code: input.countryCode,
+    payment_method: input.paymentMethod,
     name: input.name,
     transaction_id: input.transactionId,
     amount: input.amount,

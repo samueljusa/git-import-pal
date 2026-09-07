@@ -8,6 +8,7 @@
 
 
 ## Fait
+- [x] Paiement SwyChr : opérateur transmis, montant CDF entier et webhook public stable
 - [x] Table `community_gallery` + modération centralisée dans le bureau d'administration
 - [x] Quotas : 5 images/jour, 9 vidéos/jour, pause 3 h après la 5e vidéo
 - [x] Vidéos limitées à 6 s et 480p/720p
