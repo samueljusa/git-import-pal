@@ -29,8 +29,9 @@ export type FeeBreakdown = {
  * @param zeroDecimal devise sans centimes (XAF, XOF…) → arrondi à l'entier
  */
 export function addPaymentFees(amount: number, zeroDecimal: boolean): FeeBreakdown {
-  const rawFee = amount * FEE_PERCENT + FEE_FIXED_LOCAL;
   const round = (v: number) => (zeroDecimal ? Math.round(v) : Math.round(v * 100) / 100);
+  const base = round(amount);
+  const rawFee = base * FEE_PERCENT + FEE_FIXED_LOCAL;
   const fee = round(rawFee);
-  return { base: amount, fee, total: round(amount + fee) };
+  return { base, fee, total: round(base + fee) };
 }
