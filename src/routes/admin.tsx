@@ -917,6 +917,78 @@ function AdminPage() {
                 </ul>
               </section>
             )}
+
+            {active === "payouts" && isAdmin && (
+              <section className="pt-5">
+                <h2 className="text-[22px] font-semibold tracking-tight">Développeurs</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  20 % de chaque paiement réussi sont crédités à l'équipe de développeurs. Total
+                  attribué : {commissionTotal.toFixed(2)} €.
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {payouts.map((p) => (
+                    <li
+                      key={p.id}
+                      className="rounded-3xl border border-border/70 bg-card/50 p-4 text-sm backdrop-blur-xl"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium">
+                          {Number(p.amount_eur).toFixed(2)} €
+                        </span>
+                        <span className="truncate text-muted-foreground">
+                          {p.developer_email ?? p.developer_name ?? p.developer_id}
+                        </span>
+                        <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 text-[11px]">
+                          {p.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {p.method} · {p.mobile ?? "—"} ·{" "}
+                        {new Date(p.created_at).toLocaleString("fr-FR")}
+                      </p>
+                      {p.note && <p className="mt-1 text-[11px]">{p.note}</p>}
+                      {p.status === "en_attente" && (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void decide({ data: { id: p.id, status: "payee" } })
+                                .then((r) => {
+                                  toast.success(r.message);
+                                  return load();
+                                })
+                                .catch(() => toast.error("Mise à jour impossible."))
+                            }
+                            className="rounded-full bg-foreground px-4 py-2 text-[11px] font-semibold text-background"
+                          >
+                            Marquer payé
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void decide({ data: { id: p.id, status: "refusee" } })
+                                .then((r) => {
+                                  toast.success(r.message);
+                                  return load();
+                                })
+                                .catch(() => toast.error("Mise à jour impossible."))
+                            }
+                            className="rounded-full bg-secondary px-4 py-2 text-[11px] font-semibold"
+                          >
+                            Refuser
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                  {payouts.length === 0 && (
+                    <li className="py-10 text-center text-sm text-muted-foreground">
+                      Aucune demande de versement.
+                    </li>
+                  )}
+                </ul>
+              </section>
+            )}
           </>
         )}
       </main>
