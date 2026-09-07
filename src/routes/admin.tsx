@@ -317,6 +317,7 @@ function AdminPage() {
     },
     { id: "moderation", label: "Modération", icon: ShieldCheck, show: canModerate },
     { id: "content", label: "Créations", icon: Images, show: isAdmin },
+    { id: "payouts", label: "Développeurs", icon: Wallet, show: isAdmin },
   ].filter((s) => s.show);
 
   const active = sections.some((s) => s.id === tab) ? tab : (sections[0]?.id ?? "overview");
