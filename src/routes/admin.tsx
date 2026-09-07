@@ -89,6 +89,7 @@ const ROLE_LABEL: Record<TeamRole, string> = {
   moderator: "Modérateur",
   support: "Support",
   finance: "Finance",
+  developer: "Développeur",
 };
 
 function AdminPage() {
