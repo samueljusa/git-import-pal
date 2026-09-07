@@ -14,6 +14,7 @@ import {
   Check,
   X,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import {
   getAdminAccess,
@@ -53,6 +54,12 @@ import {
   type ModerationItem,
 } from "@/lib/community.functions";
 import { getPromoSettings, setPromoSettings } from "@/lib/promo.functions";
+import {
+  listPayoutRequests,
+  decidePayout,
+  getCommissionSummary,
+  type PayoutRequest,
+} from "@/lib/developer.functions";
 import { toast } from "@/lib/toast";
 import { useAuth } from "@/hooks/useAuth";
 import { formatSeconds } from "@/lib/quota";
@@ -83,6 +90,7 @@ const ROLE_LABEL: Record<TeamRole, string> = {
   moderator: "Modérateur",
   support: "Support",
   finance: "Finance",
+  developer: "Développeur",
 };
 
 function AdminPage() {
@@ -108,6 +116,9 @@ function AdminPage() {
   const removeItem = useServerFn(deleteGalleryItem);
   const fetchPromo = useServerFn(getPromoSettings);
   const savePromo = useServerFn(setPromoSettings);
+  const fetchPayouts = useServerFn(listPayoutRequests);
+  const fetchCommissions = useServerFn(getCommissionSummary);
+  const decide = useServerFn(decidePayout);
 
   const [roles, setRoles] = useState<StaffRole[]>([]);
   const [isStaff, setIsStaff] = useState<boolean | null>(null);
@@ -131,6 +142,8 @@ function AdminPage() {
   const [modBusy, setModBusy] = useState<string | null>(null);
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [promoSaving, setPromoSaving] = useState(false);
+  const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
+  const [commissionTotal, setCommissionTotal] = useState(0);
 
   const isAdmin = roles.includes("admin");
   const canModerate = roles.includes("admin") || roles.includes("moderator");
@@ -153,18 +166,22 @@ function AdminPage() {
       const support = admin || access.roles.includes("support");
 
       if (admin) {
-        const [s, r, o, m, i] = await Promise.all([
+        const [s, r, o, m, i, p, c] = await Promise.all([
           fetchStats({}),
           fetchRecent({}),
           fetchOrders({}),
           fetchMembers({}),
           fetchInvites({}),
+          fetchPayouts({}),
+          fetchCommissions({}),
         ]);
         setStats(s as AdminStats);
         setItems(r as AdminGeneration[]);
         setOrders(o as AdminOrder[]);
         setMembers(m as TeamMember[]);
         setInvites(i as TeamInvitation[]);
+        setPayouts(p as PayoutRequest[]);
+        setCommissionTotal(c.total);
       }
       if (admin || access.roles.includes("moderator")) {
         setQueue((await fetchQueue({})) as ModerationItem[]);
@@ -189,6 +206,8 @@ function AdminPage() {
     fetchTickets,
     fetchQueue,
     fetchPromo,
+    fetchPayouts,
+    fetchCommissions,
   ]);
 
   const actOnItem = useCallback(
@@ -299,6 +318,7 @@ function AdminPage() {
     },
     { id: "moderation", label: "Modération", icon: ShieldCheck, show: canModerate },
     { id: "content", label: "Créations", icon: Images, show: isAdmin },
+    { id: "payouts", label: "Développeurs", icon: Wallet, show: isAdmin },
   ].filter((s) => s.show);
 
   const active = sections.some((s) => s.id === tab) ? tab : (sections[0]?.id ?? "overview");
@@ -892,6 +912,78 @@ function AdminPage() {
                   {items.length === 0 && (
                     <li className="py-10 text-center text-sm text-muted-foreground">
                       Aucune génération enregistrée.
+                    </li>
+                  )}
+                </ul>
+              </section>
+            )}
+
+            {active === "payouts" && isAdmin && (
+              <section className="pt-5">
+                <h2 className="text-[22px] font-semibold tracking-tight">Développeurs</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  20 % de chaque paiement réussi sont crédités à l'équipe de développeurs. Total
+                  attribué : {commissionTotal.toFixed(2)} €.
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {payouts.map((p) => (
+                    <li
+                      key={p.id}
+                      className="rounded-3xl border border-border/70 bg-card/50 p-4 text-sm backdrop-blur-xl"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium">
+                          {Number(p.amount_eur).toFixed(2)} €
+                        </span>
+                        <span className="truncate text-muted-foreground">
+                          {p.developer_email ?? p.developer_name ?? p.developer_id}
+                        </span>
+                        <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 text-[11px]">
+                          {p.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {p.method} · {p.mobile ?? "—"} ·{" "}
+                        {new Date(p.created_at).toLocaleString("fr-FR")}
+                      </p>
+                      {p.note && <p className="mt-1 text-[11px]">{p.note}</p>}
+                      {p.status === "en_attente" && (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void decide({ data: { id: p.id, status: "payee" } })
+                                .then((r) => {
+                                  toast.success(r.message);
+                                  return load();
+                                })
+                                .catch(() => toast.error("Mise à jour impossible."))
+                            }
+                            className="rounded-full bg-foreground px-4 py-2 text-[11px] font-semibold text-background"
+                          >
+                            Marquer payé
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void decide({ data: { id: p.id, status: "refusee" } })
+                                .then((r) => {
+                                  toast.success(r.message);
+                                  return load();
+                                })
+                                .catch(() => toast.error("Mise à jour impossible."))
+                            }
+                            className="rounded-full bg-secondary px-4 py-2 text-[11px] font-semibold"
+                          >
+                            Refuser
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                  {payouts.length === 0 && (
+                    <li className="py-10 text-center text-sm text-muted-foreground">
+                      Aucune demande de versement.
                     </li>
                   )}
                 </ul>

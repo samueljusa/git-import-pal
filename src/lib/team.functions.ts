@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-export type TeamRole = "admin" | "moderator" | "support" | "finance";
+export type TeamRole = "admin" | "moderator" | "support" | "finance" | "developer";
 
 export type TeamMember = {
   user_id: string;
@@ -19,7 +19,7 @@ export type TeamInvitation = {
   created_at: string;
 };
 
-const roleSchema = z.enum(["admin", "moderator", "support", "finance"]);
+const roleSchema = z.enum(["admin", "moderator", "support", "finance", "developer"]);
 
 /** Membres de l'équipe (comptes existants disposant d'un rôle). */
 export const listTeamMembers = createServerFn({ method: "GET" })
