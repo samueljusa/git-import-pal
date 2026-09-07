@@ -1,6 +1,7 @@
 # Feuille de route
 
 ## En cours
+- [ ] Corriger l’échec immédiat SwyChr avant la notification Mobile Money
 - [x] Connexion réparée : Google activé + confirmation e-mail désactivée
 - [x] Audit sécurité pré-production (secrets, RLS, validation, uploads, webhooks)
 - [x] Offre de lancement : 2 jours, activable une seule fois, prix promo affiché

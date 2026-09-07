@@ -169,19 +169,16 @@ export const startPayment = createServerFn({ method: "POST" })
     if (insertError) return { ok: false as const, message: "Impossible d'enregistrer la commande." };
 
     // URL de callback transmise au prestataire : le jeton HMAC authentifie l'appel.
-    const { getRequestHeader } = await import("@tanstack/react-start/server");
     const { callbackToken } = await import("@/lib/payments/token.server");
-    const origin =
-      getRequestHeader("origin") ??
-      (getRequestHeader("host") ? `https://${getRequestHeader("host")}` : null);
-    if (!origin) {
-      throw new Error("Impossible de déterminer l'origine de la requête pour le callback de paiement.");
-    }
-    const callbackUrl = `${origin}/api/public/webhooks/payment-success?transaction_id=${transactionId}&token=${callbackToken(transactionId)}`;
+    // L'aperçu avec authentification renvoie 401 aux appels externes. Cette
+    // adresse de développement stable autorise explicitement les webhooks.
+    const callbackOrigin = "https://project--0eb49e5c-6fd1-4a1b-aac6-53a815ad5253-dev.lovable.app";
+    const callbackUrl = `${callbackOrigin}/api/public/webhooks/payment-success?transaction_id=${transactionId}&token=${callbackToken(transactionId)}`;
 
     const { createPaymentLink } = await import("@/lib/services/swychr.server");
     const result = await createPaymentLink({
       countryCode: country.code,
+      paymentMethod: data.paymentMethod,
       name: data.fullName,
       transactionId,
       // SwyChr ajoute lui-même les frais lorsque `pass_digital_charge` est actif.
