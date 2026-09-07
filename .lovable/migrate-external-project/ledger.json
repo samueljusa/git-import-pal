@@ -42,6 +42,7 @@
   "verification": {
     "build_dev": "passed",
     "preview_home": "loaded",
+    "build_production": "passed",
     "remaining": [
       "Vérifier la connexion utilisateur (Google ou email) en prévisualisation.",
       "Vérifier la génération d'image et la galerie communautaire.",
