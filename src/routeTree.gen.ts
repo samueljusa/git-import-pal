@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as DeveloppeurRouteImport } from './routes/developpeur'
 import { Route as GalerieRouteImport } from './routes/galerie'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -20,6 +21,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicWebhooksPaymentFailedRouteImport } from './routes/api/public/webhooks/payment-failed'
 import { Route as ApiPublicWebhooksPaymentSuccessRouteImport } from './routes/api/public/webhooks/payment-success'
+import { Route as ApiPublicWebhooksSwychrRouteImport } from './routes/api/public/webhooks/swychr'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,6 +36,11 @@ const AdminRoute = AdminRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloppeurRoute = DeveloppeurRouteImport.update({
+  id: '/developpeur',
+  path: '/developpeur',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalerieRoute = GalerieRouteImport.update({
@@ -81,11 +88,17 @@ const ApiPublicWebhooksPaymentSuccessRoute =
     path: '/api/public/webhooks/payment-success',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksSwychrRoute = ApiPublicWebhooksSwychrRouteImport.update({
+  id: '/api/public/webhooks/swychr',
+  path: '/api/public/webhooks/swychr',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/developpeur': typeof DeveloppeurRoute
   '/galerie': typeof GalerieRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -94,11 +107,13 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
+  '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/developpeur': typeof DeveloppeurRoute
   '/galerie': typeof GalerieRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -107,12 +122,14 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
+  '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/developpeur': typeof DeveloppeurRoute
   '/galerie': typeof GalerieRoute
   '/mcp': typeof McpRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -121,6 +138,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
+  '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/developpeur'
     | '/galerie'
     | '/mcp'
     | '/.mcp/list-tools'
@@ -136,11 +155,13 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
+    | '/api/public/webhooks/swychr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/app'
+    | '/developpeur'
     | '/galerie'
     | '/mcp'
     | '/.mcp/list-tools'
@@ -149,11 +170,13 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
+    | '/api/public/webhooks/swychr'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/app'
+    | '/developpeur'
     | '/galerie'
     | '/mcp'
     | '/.mcp/list-tools'
@@ -162,12 +185,14 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
+    | '/api/public/webhooks/swychr'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AppRoute: typeof AppRoute
+  DeveloppeurRoute: typeof DeveloppeurRoute
   GalerieRoute: typeof GalerieRoute
   McpRoute: typeof McpRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -176,6 +201,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicWebhooksPaymentFailedRoute: typeof ApiPublicWebhooksPaymentFailedRoute
   ApiPublicWebhooksPaymentSuccessRoute: typeof ApiPublicWebhooksPaymentSuccessRoute
+  ApiPublicWebhooksSwychrRoute: typeof ApiPublicWebhooksSwychrRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -199,6 +225,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developpeur': {
+      id: '/developpeur'
+      path: '/developpeur'
+      fullPath: '/developpeur'
+      preLoaderRoute: typeof DeveloppeurRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/galerie': {
@@ -257,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksPaymentSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/swychr': {
+      id: '/api/public/webhooks/swychr'
+      path: '/api/public/webhooks/swychr'
+      fullPath: '/api/public/webhooks/swychr'
+      preLoaderRoute: typeof ApiPublicWebhooksSwychrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -264,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AppRoute: AppRoute,
+  DeveloppeurRoute: DeveloppeurRoute,
   GalerieRoute: GalerieRoute,
   McpRoute: McpRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
@@ -273,6 +314,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicWebhooksPaymentFailedRoute: ApiPublicWebhooksPaymentFailedRoute,
   ApiPublicWebhooksPaymentSuccessRoute: ApiPublicWebhooksPaymentSuccessRoute,
+  ApiPublicWebhooksSwychrRoute: ApiPublicWebhooksSwychrRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

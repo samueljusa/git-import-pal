@@ -25,7 +25,7 @@ export async function applyOrderOutcome(
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, user_id, tier, status, period, product_id")
+    .select("id, user_id, tier, status, period, product_id, amount_eur")
     .eq("transaction_id", transactionId)
     .maybeSingle();
 
@@ -73,6 +73,11 @@ export async function applyOrderOutcome(
         ends_at: endsAt,
       });
     }
+  }
+
+  if (outcome === "payee") {
+    const { creditDeveloperCommissions } = await import("@/lib/payments/commissions.server");
+    await creditDeveloperCommissions(order.id, Number(order.amount_eur ?? 0));
   }
 
   return "ok";
@@ -146,3 +151,55 @@ export async function handlePaymentWebhook(request: Request): Promise<Response> 
   return new Response("ok");
 }
 
+
+/**
+ * Callback SwyChr « global » : URL fixe à enregistrer dans le tableau de bord
+ * SwyChr. Aucun jeton n'est exigé car le statut est systématiquement revérifié
+ * auprès de SwyChr avant d'activer quoi que ce soit.
+ */
+export async function handleSwychrCallback(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  let body: Record<string, unknown> = {};
+  if (request.method === "POST") {
+    const raw = await request.text();
+    if (raw) {
+      try {
+        body = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        return new Response("Payload invalide", { status: 400 });
+      }
+    }
+  }
+
+  const transactionId =
+    (typeof body["transaction_id"] === "string" ? (body["transaction_id"] as string) : null) ??
+    (typeof body["transactionId"] === "string" ? (body["transactionId"] as string) : null) ??
+    url.searchParams.get("transaction_id");
+  if (!transactionId) return new Response("transaction_id manquant", { status: 400 });
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: order } = await supabaseAdmin
+    .from("orders")
+    .select("transaction_id, provider_transaction_id, status")
+    .or(`transaction_id.eq.${transactionId},provider_transaction_id.eq.${transactionId}`)
+    .maybeSingle();
+  if (!order) return new Response("Commande introuvable", { status: 404 });
+  if (order.status !== "en_attente") return new Response("ok");
+
+  const PAID = ["paid", "success", "successful", "succeeded", "completed", "complete", "settled"];
+  const FAILED = ["failed", "failure", "cancelled", "canceled", "expired", "declined", "rejected"];
+
+  const { fetchPaymentLinkStatus } = await import("@/lib/services/swychr.server");
+  const remote = await fetchPaymentLinkStatus(order.provider_transaction_id ?? order.transaction_id);
+  if (!remote.ok || !remote.data.status) return new Response("ok");
+
+  const normalized = remote.data.status.toLowerCase();
+  const confirmed = PAID.includes(normalized) ? "payee" : FAILED.includes(normalized) ? "echouee" : null;
+  if (!confirmed) return new Response("ok");
+
+  await applyOrderOutcome(order.transaction_id, confirmed, remote.data.status, {
+    ...body,
+    source: "swychr-callback",
+  });
+  return new Response("ok");
+}

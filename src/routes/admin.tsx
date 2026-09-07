@@ -53,6 +53,12 @@ import {
   type ModerationItem,
 } from "@/lib/community.functions";
 import { getPromoSettings, setPromoSettings } from "@/lib/promo.functions";
+import {
+  listPayoutRequests,
+  decidePayout,
+  getCommissionSummary,
+  type PayoutRequest,
+} from "@/lib/developer.functions";
 import { toast } from "@/lib/toast";
 import { useAuth } from "@/hooks/useAuth";
 import { formatSeconds } from "@/lib/quota";
@@ -108,6 +114,9 @@ function AdminPage() {
   const removeItem = useServerFn(deleteGalleryItem);
   const fetchPromo = useServerFn(getPromoSettings);
   const savePromo = useServerFn(setPromoSettings);
+  const fetchPayouts = useServerFn(listPayoutRequests);
+  const fetchCommissions = useServerFn(getCommissionSummary);
+  const decide = useServerFn(decidePayout);
 
   const [roles, setRoles] = useState<StaffRole[]>([]);
   const [isStaff, setIsStaff] = useState<boolean | null>(null);
@@ -131,6 +140,8 @@ function AdminPage() {
   const [modBusy, setModBusy] = useState<string | null>(null);
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [promoSaving, setPromoSaving] = useState(false);
+  const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
+  const [commissionTotal, setCommissionTotal] = useState(0);
 
   const isAdmin = roles.includes("admin");
   const canModerate = roles.includes("admin") || roles.includes("moderator");
@@ -153,18 +164,22 @@ function AdminPage() {
       const support = admin || access.roles.includes("support");
 
       if (admin) {
-        const [s, r, o, m, i] = await Promise.all([
+        const [s, r, o, m, i, p, c] = await Promise.all([
           fetchStats({}),
           fetchRecent({}),
           fetchOrders({}),
           fetchMembers({}),
           fetchInvites({}),
+          fetchPayouts({}),
+          fetchCommissions({}),
         ]);
         setStats(s as AdminStats);
         setItems(r as AdminGeneration[]);
         setOrders(o as AdminOrder[]);
         setMembers(m as TeamMember[]);
         setInvites(i as TeamInvitation[]);
+        setPayouts(p as PayoutRequest[]);
+        setCommissionTotal(c.total);
       }
       if (admin || access.roles.includes("moderator")) {
         setQueue((await fetchQueue({})) as ModerationItem[]);
@@ -189,6 +204,8 @@ function AdminPage() {
     fetchTickets,
     fetchQueue,
     fetchPromo,
+    fetchPayouts,
+    fetchCommissions,
   ]);
 
   const actOnItem = useCallback(
