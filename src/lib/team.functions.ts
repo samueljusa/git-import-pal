@@ -97,7 +97,27 @@ export const inviteTeamMember = createServerFn({ method: "POST" })
       .from("team_invitations")
       .insert({ email, role: data.role, invited_by: context.userId });
     if (error) return { ok: false as const, message: "Invitation impossible." };
-    return { ok: true as const, message: "Invitation enregistrée." };
+
+    const redirectTo = "https://project--0eb49e5c-6fd1-4a1b-aac6-53a815ad5253.lovable.app/?next=/admin";
+    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo,
+      data: { team_role: data.role },
+    });
+
+    if (inviteError) {
+      await supabaseAdmin
+        .from("team_invitations")
+        .delete()
+        .eq("email", email)
+        .eq("role", data.role)
+        .is("accepted_at", null);
+      return {
+        ok: false as const,
+        message: "L’e-mail d’invitation n’a pas pu être envoyé. Réessayez dans quelques instants.",
+      };
+    }
+
+    return { ok: true as const, message: "Invitation envoyée par e-mail." };
   });
 
 /** Retire un rôle à un collaborateur. */
