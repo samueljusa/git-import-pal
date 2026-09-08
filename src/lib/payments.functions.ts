@@ -138,6 +138,22 @@ export const startPayment = createServerFn({ method: "POST" })
     const mobile = data.mobile.replace(/[^0-9]/g, "");
     if (mobile.length < 8) return { ok: false as const, message: "Numéro de téléphone invalide." };
 
+    const { fetchPayoutMethods } = await import("@/lib/services/swychr.server");
+    const methodsResult = await fetchPayoutMethods(country.code);
+    if (!methodsResult.ok) return { ok: false as const, message: methodsResult.message };
+    const selectedMethod = methodsResult.data.find(
+      (method) => method.code.toLowerCase() === data.paymentMethod.toLowerCase(),
+    );
+    if (!selectedMethod) {
+      return { ok: false as const, message: "Ce moyen de paiement n’est plus disponible." };
+    }
+    if (selectedMethod.length !== null && mobile.length !== selectedMethod.length) {
+      return {
+        ok: false as const,
+        message: `Le numéro ${selectedMethod.label} doit contenir ${selectedMethod.length} chiffres.`,
+      };
+    }
+
     const { convertFromEur } = await import("@/lib/services/fx.server");
     const conv = await convertFromEur(amountEur, country.currency, country.zeroDecimal);
     if (!conv.ok) return { ok: false as const, message: conv.message };
@@ -161,7 +177,7 @@ export const startPayment = createServerFn({ method: "POST" })
       currency: country.currency,
       exchange_rate: conv.rate,
       country_code: country.code,
-      payment_method: data.paymentMethod,
+      payment_method: selectedMethod.code,
       mobile,
       customer_name: data.fullName,
       customer_email: email,
@@ -178,7 +194,7 @@ export const startPayment = createServerFn({ method: "POST" })
     const { createPaymentLink } = await import("@/lib/services/swychr.server");
     const result = await createPaymentLink({
       countryCode: country.code,
-      paymentMethod: data.paymentMethod,
+      paymentMethod: selectedMethod.code,
       name: data.fullName,
       transactionId,
       // SwyChr ajoute lui-même les frais lorsque `pass_digital_charge` est actif.
