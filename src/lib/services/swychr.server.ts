@@ -213,6 +213,7 @@ export async function createPaymentLink(
     const message =
       (typeof raw["message"] === "string" && raw["message"]) ||
       "Impossible de créer le lien de paiement.";
+    console.error("[swychr] création refusée:", status, message);
     return { ok: false, message };
   }
 
