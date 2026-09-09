@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SUPPORTED_COUNTRIES, findCountry, normalizeMobile } from "@/lib/payments/countries";
+import {
+  SUPPORTED_COUNTRIES,
+  findCountry,
+  normalizeMobile,
+  operatorPrefixes,
+} from "@/lib/payments/countries";
 
 export type PriceRow = {
   id: string;
@@ -155,6 +160,13 @@ export const startPayment = createServerFn({ method: "POST" })
       return {
         ok: false as const,
         message: `Le numéro ${selectedMethod.label} doit contenir ${selectedMethod.length} chiffres.`,
+      };
+    }
+    const expectedPrefixes = operatorPrefixes(country.code, selectedMethod.label);
+    if (expectedPrefixes && !expectedPrefixes.some((prefix) => mobileLocal.startsWith(prefix))) {
+      return {
+        ok: false as const,
+        message: `Ce numéro ne correspond pas au réseau ${selectedMethod.label}.`,
       };
     }
 
