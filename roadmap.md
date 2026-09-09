@@ -2,6 +2,7 @@
 
 ## En cours
 - [ ] Obtenir de SwyChr le motif fournisseur du statut `failed` si le prochain essai échoue
+- [x] Numéro envoyé au format international strict (243XXXXXXXXX), payload complet et journaux détaillés
 - [x] Envoyer une invitation e-mail aux nouveaux membres de l’équipe
 - [x] Connexion réparée : Google activé + confirmation e-mail désactivée
 - [x] Audit sécurité pré-production (secrets, RLS, validation, uploads, webhooks)
