@@ -7,7 +7,12 @@ import {
   startPayment,
   getOrderStatus,
 } from "@/lib/payments.functions";
-import { SUPPORTED_COUNTRIES, formatLocalAmount, operatorPrefixes } from "@/lib/payments/countries";
+import {
+  SUPPORTED_COUNTRIES,
+  formatLocalAmount,
+  normalizeMobile,
+  operatorPrefixes,
+} from "@/lib/payments/countries";
 import { useAuth } from "@/hooks/useAuth";
 
 type Step = "mode" | "country" | "method" | "details" | "card" | "waiting" | "done" | "failed";
@@ -106,12 +111,13 @@ export function CheckoutSheet({
   );
 
   const mobileValid = useMemo(() => {
-    const digits = mobile.replace(/\D/g, "");
+    if (!selectedCountry) return false;
+    const digits = normalizeMobile(mobile, selectedCountry).local;
     if (digits.length < 8) return false;
     if (method?.length && digits.length !== method.length) return false;
     if (prefixes && prefixes.length > 0 && !prefixes.some((p) => digits.startsWith(p))) return false;
     return true;
-  }, [mobile, method, prefixes]);
+  }, [mobile, method, prefixes, selectedCountry]);
 
   const submit = useCallback(async () => {
     if (!method || !selectedCountry) return;

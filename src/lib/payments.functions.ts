@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SUPPORTED_COUNTRIES, findCountry } from "@/lib/payments/countries";
+import { SUPPORTED_COUNTRIES, findCountry, normalizeMobile } from "@/lib/payments/countries";
 
 export type PriceRow = {
   id: string;
@@ -135,8 +135,8 @@ export const startPayment = createServerFn({ method: "POST" })
         ? Number(price.amount_eur_yearly)
         : Number(price.amount_eur);
 
-    const mobile = data.mobile.replace(/[^0-9]/g, "");
-    if (mobile.length < 8) return { ok: false as const, message: "Numéro de téléphone invalide." };
+    const { local: mobileLocal, international: mobile } = normalizeMobile(data.mobile, country);
+    if (mobileLocal.length < 8) return { ok: false as const, message: "Numéro de téléphone invalide." };
 
     const { fetchPayoutMethods } = await import("@/lib/services/swychr.server");
     const methodsResult = await fetchPayoutMethods(country.code);
@@ -147,12 +147,17 @@ export const startPayment = createServerFn({ method: "POST" })
     if (!selectedMethod) {
       return { ok: false as const, message: "Ce moyen de paiement n’est plus disponible." };
     }
-    if (selectedMethod.length !== null && mobile.length !== selectedMethod.length) {
+    if (
+      selectedMethod.length !== null &&
+      mobileLocal.length !== selectedMethod.length &&
+      mobile.length !== selectedMethod.length
+    ) {
       return {
         ok: false as const,
         message: `Le numéro ${selectedMethod.label} doit contenir ${selectedMethod.length} chiffres.`,
       };
     }
+
 
     const { convertFromEur } = await import("@/lib/services/fx.server");
     const conv = await convertFromEur(amountEur, country.currency, country.zeroDecimal);

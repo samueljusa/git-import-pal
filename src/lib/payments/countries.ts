@@ -6,34 +6,56 @@ export type SupportedCountry = {
   code: string;
   name: string;
   currency: string;
+  /** Indicatif téléphonique international, sans le « + ». */
+  dial: string;
   /** Devises sans sous-unité : le montant envoyé doit être entier. */
   zeroDecimal: boolean;
 };
 
 export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
-  { code: "BJ", name: "Bénin", currency: "XOF", zeroDecimal: true },
-  { code: "BF", name: "Burkina Faso", currency: "XOF", zeroDecimal: true },
-  { code: "CM", name: "Cameroun", currency: "XAF", zeroDecimal: true },
-  { code: "CF", name: "République centrafricaine", currency: "XAF", zeroDecimal: true },
-  { code: "TD", name: "Tchad", currency: "XAF", zeroDecimal: true },
-  { code: "CG", name: "Congo-Brazzaville", currency: "XAF", zeroDecimal: true },
-  { code: "CD", name: "République démocratique du Congo", currency: "CDF", zeroDecimal: true },
-  { code: "CI", name: "Côte d'Ivoire", currency: "XOF", zeroDecimal: true },
-  { code: "GA", name: "Gabon", currency: "XAF", zeroDecimal: true },
-  { code: "GH", name: "Ghana", currency: "GHS", zeroDecimal: false },
-  { code: "GN", name: "Guinée", currency: "GNF", zeroDecimal: true },
-  { code: "KE", name: "Kenya", currency: "KES", zeroDecimal: false },
-  { code: "ML", name: "Mali", currency: "XOF", zeroDecimal: true },
-  { code: "NE", name: "Niger", currency: "XOF", zeroDecimal: true },
-  { code: "NG", name: "Nigeria", currency: "NGN", zeroDecimal: false },
-  { code: "RW", name: "Rwanda", currency: "RWF", zeroDecimal: true },
-  { code: "SN", name: "Sénégal", currency: "XOF", zeroDecimal: true },
-  { code: "TG", name: "Togo", currency: "XOF", zeroDecimal: true },
+  { code: "BJ", name: "Bénin", currency: "XOF", dial: "229", zeroDecimal: true },
+  { code: "BF", name: "Burkina Faso", currency: "XOF", dial: "226", zeroDecimal: true },
+  { code: "CM", name: "Cameroun", currency: "XAF", dial: "237", zeroDecimal: true },
+  { code: "CF", name: "République centrafricaine", currency: "XAF", dial: "236", zeroDecimal: true },
+  { code: "TD", name: "Tchad", currency: "XAF", dial: "235", zeroDecimal: true },
+  { code: "CG", name: "Congo-Brazzaville", currency: "XAF", dial: "242", zeroDecimal: true },
+  { code: "CD", name: "République démocratique du Congo", currency: "CDF", dial: "243", zeroDecimal: true },
+  { code: "CI", name: "Côte d'Ivoire", currency: "XOF", dial: "225", zeroDecimal: true },
+  { code: "GA", name: "Gabon", currency: "XAF", dial: "241", zeroDecimal: true },
+  { code: "GH", name: "Ghana", currency: "GHS", dial: "233", zeroDecimal: false },
+  { code: "GN", name: "Guinée", currency: "GNF", dial: "224", zeroDecimal: true },
+  { code: "KE", name: "Kenya", currency: "KES", dial: "254", zeroDecimal: false },
+  { code: "ML", name: "Mali", currency: "XOF", dial: "223", zeroDecimal: true },
+  { code: "NE", name: "Niger", currency: "XOF", dial: "227", zeroDecimal: true },
+  { code: "NG", name: "Nigeria", currency: "NGN", dial: "234", zeroDecimal: false },
+  { code: "RW", name: "Rwanda", currency: "RWF", dial: "250", zeroDecimal: true },
+  { code: "SN", name: "Sénégal", currency: "XOF", dial: "221", zeroDecimal: true },
+  { code: "TG", name: "Togo", currency: "XOF", dial: "228", zeroDecimal: true },
 ];
 
 export function findCountry(code: string): SupportedCountry | undefined {
   return SUPPORTED_COUNTRIES.find((c) => c.code === code.toUpperCase());
 }
+
+/**
+ * Nettoie un numéro saisi et renvoie sa forme locale (sans indicatif ni 0
+ * initial) et sa forme internationale stricte (ex. 243XXXXXXXXX).
+ */
+export function normalizeMobile(
+  raw: string,
+  country: SupportedCountry,
+): { local: string; international: string } {
+  let digits = raw.replace(/[^0-9]/g, "");
+  // Retire un éventuel 00 international puis l'indicatif du pays.
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith(country.dial) && digits.length > country.dial.length) {
+    digits = digits.slice(country.dial.length);
+  }
+  // Retire le 0 national initial.
+  digits = digits.replace(/^0+/, "");
+  return { local: digits, international: `${country.dial}${digits}` };
+}
+
 
 export function formatLocalAmount(amount: number, currency: string): string {
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(amount)} ${currency}`;

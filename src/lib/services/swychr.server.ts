@@ -153,20 +153,47 @@ export type PaymentLink = {
 export async function createPaymentLink(
   input: PaymentLinkInput,
 ): Promise<ApiResult<PaymentLink>> {
-  const result = await callSwychr("/api/payin/create_payment_links", {
+  const payload: Record<string, unknown> = {
     country_code: input.countryCode,
     payment_method: input.paymentMethod,
+    network: input.paymentMethod,
+    operator: input.paymentMethod,
     name: input.name,
     transaction_id: input.transactionId,
     amount: input.amount,
     currency: input.currency,
     email: input.email,
     mobile: input.mobile,
+    phone_number: input.mobile,
     description: input.description,
     pass_digital_charge: true,
     ...(input.callbackUrl ? { callback_url: input.callbackUrl } : {}),
-  });
-  if (!result.ok) return result;
+  };
+
+  const missing = [
+    "country_code",
+    "payment_method",
+    "name",
+    "transaction_id",
+    "amount",
+    "currency",
+    "email",
+    "phone_number",
+  ].filter((key) => payload[key] === undefined || payload[key] === null || payload[key] === "");
+  if (missing.length > 0) {
+    console.error("[swychr] champs manquants dans le payload:", missing);
+    return { ok: false, message: `Données de paiement incomplètes : ${missing.join(", ")}.` };
+  }
+
+  console.log("[swychr] create_payment_links payload:", JSON.stringify(payload));
+
+  const result = await callSwychr("/api/payin/create_payment_links", payload);
+  if (!result.ok) {
+    console.error("[swychr] create_payment_links erreur:", result.status ?? "-", result.message);
+    return result;
+  }
+  console.log("[swychr] create_payment_links réponse:", JSON.stringify(result.data));
+
 
   const raw = result.data;
   const status = typeof raw["status"] === "number" ? (raw["status"] as number) : 200;
@@ -186,6 +213,7 @@ export async function createPaymentLink(
     const message =
       (typeof raw["message"] === "string" && raw["message"]) ||
       "Impossible de créer le lien de paiement.";
+    console.error("[swychr] création refusée:", status, message);
     return { ok: false, message };
   }
 
