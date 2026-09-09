@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SUPPORTED_COUNTRIES, findCountry } from "@/lib/payments/countries";
+import { SUPPORTED_COUNTRIES, findCountry, normalizeMobile } from "@/lib/payments/countries";
 
 export type PriceRow = {
   id: string;
