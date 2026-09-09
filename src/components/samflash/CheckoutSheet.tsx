@@ -7,7 +7,12 @@ import {
   startPayment,
   getOrderStatus,
 } from "@/lib/payments.functions";
-import { SUPPORTED_COUNTRIES, formatLocalAmount, operatorPrefixes } from "@/lib/payments/countries";
+import {
+  SUPPORTED_COUNTRIES,
+  formatLocalAmount,
+  normalizeMobile,
+  operatorPrefixes,
+} from "@/lib/payments/countries";
 import { useAuth } from "@/hooks/useAuth";
 
 type Step = "mode" | "country" | "method" | "details" | "card" | "waiting" | "done" | "failed";
