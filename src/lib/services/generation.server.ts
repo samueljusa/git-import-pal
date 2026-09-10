@@ -39,6 +39,8 @@ export type QuotaReason =
   | "video_daily"
   | "video_pause"
   | "video_seconds"
+  | "device_free_used"
+  | "subscription_required"
   | "subscription_expired";
 
 export type GenerationResult =
@@ -137,6 +139,21 @@ export async function runGeneration(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const seconds = secondsFor(input);
   const isVideo = input.mediaType === "video";
+
+  // Contrôle d'accès préalable : aucun appel au moteur si l'utilisateur n'a
+  // ni abonnement actif ni offre gratuite disponible sur cet appareil.
+  const { checkGenerationAccess } = await import("@/lib/services/access.server");
+  const access = await checkGenerationAccess(userId, input.mediaType, isVideo ? seconds : 0);
+  if (!access.allowed) {
+    return {
+      ok: false,
+      reason: "quota",
+      code: access.code as QuotaReason,
+      retryAt: null,
+      remainingSeconds: access.remainingSeconds,
+      limitSeconds: access.limitSeconds,
+    };
+  }
 
   if (isVideo) {
     // Pipeline strict : abonnement valide + solde de secondes suffisant,

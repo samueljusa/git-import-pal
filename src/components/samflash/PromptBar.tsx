@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Plus, Image as ImageIcon, Video, Smile, ArrowUp, Loader2, Sparkles } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateMedia } from "@/lib/generation.functions";
+import { getGenerationAccess } from "@/lib/device.functions";
 import { enhancePrompt } from "@/lib/prompt.functions";
 import { useI18n } from "@/lib/i18n";
 import { playChime } from "@/lib/chime";
@@ -15,7 +16,14 @@ const chip = (active: boolean) =>
 
 /** Message clair selon la limite atteinte. */
 function quotaMessage(
-  code: "image_daily" | "video_daily" | "video_pause" | "video_seconds" | "subscription_expired",
+  code:
+    | "image_daily"
+    | "video_daily"
+    | "video_pause"
+    | "video_seconds"
+    | "device_free_used"
+    | "subscription_required"
+    | "subscription_expired",
   retryAt: string | null,
   remainingSeconds?: number,
 ) {

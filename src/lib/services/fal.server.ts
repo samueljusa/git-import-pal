@@ -6,7 +6,7 @@
  *
  * Endpoints utilisés :
  *  - Image (text-to-image)       : xai/grok-imagine            (fallback fal-ai/flux/schnell)
- *  - Vidéo depuis un prompt      : xai/grok-imagine-video/texte-to-video
+ *  - Vidéo depuis un prompt      : xai/grok-imagine-video/text-to-video
  *  - Vidéo depuis une image      : xai/grok-imagine-video/image-to-video
  *  - Retouche / montage vidéo    : xai/grok-imagine-video/edit-video
  */
@@ -14,7 +14,7 @@
 export const FAL_MODELS = {
   image: "xai/grok-imagine",
   imageFallback: "fal-ai/flux/schnell",
-  textToVideo: "xai/grok-imagine-video/texte-to-video",
+  textToVideo: "xai/grok-imagine-video/text-to-video",
   imageToVideo: "xai/grok-imagine-video/image-to-video",
   editVideo: "xai/grok-imagine-video/edit-video",
 } as const;

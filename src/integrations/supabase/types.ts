@@ -165,6 +165,27 @@ export type Database = {
           },
         ]
       }
+      device_fingerprints: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          first_user_id: string
+          free_used: boolean
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          first_user_id: string
+          free_used?: boolean
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          first_user_id?: string
+          free_used?: boolean
+        }
+        Relationships: []
+      }
       generations: {
         Row: {
           approved: boolean
@@ -628,6 +649,24 @@ export type Database = {
           id?: string
           invited_by?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      user_devices: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          user_id?: string
         }
         Relationships: []
       }
