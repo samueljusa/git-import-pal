@@ -39,6 +39,8 @@ export type QuotaReason =
   | "video_daily"
   | "video_pause"
   | "video_seconds"
+  | "device_free_used"
+  | "subscription_required"
   | "subscription_expired";
 
 export type GenerationResult =
