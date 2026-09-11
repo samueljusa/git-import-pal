@@ -6,6 +6,8 @@ import { toast } from "@/lib/toast";
 import { ChevronRight, Play, Share2, Sparkles, Trash2, User } from "lucide-react";
 import { submitToGallery } from "@/lib/community.functions";
 import { deleteGeneration } from "@/lib/generation.functions";
+import { registerDevice } from "@/lib/device.functions";
+import { getDeviceFingerprint } from "@/lib/device";
 import { SupportReplyNotifier } from "@/components/samflash/SupportReplyNotifier";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -53,10 +55,17 @@ function AppFeed() {
   const { items, loading: feedLoading, refresh } = useGenerations(!!session);
   const submit = useServerFn(submitToGallery);
   const removeItem = useServerFn(deleteGeneration);
+  const saveDevice = useServerFn(registerDevice);
 
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/" });
   }, [loading, session, navigate]);
+
+  // Enregistre l'appareil : l'offre gratuite reste limitée à un compte par téléphone.
+  useEffect(() => {
+    if (!session) return;
+    void saveDevice({ data: { fingerprint: getDeviceFingerprint() } }).catch(() => undefined);
+  }, [session, saveDevice]);
 
   const share = async (id: string) => {
     try {

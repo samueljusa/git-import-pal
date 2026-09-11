@@ -81,6 +81,7 @@ export function PromptBar({ onStart, onSettled, onGenerated, onQuotaExceeded }: 
 
   const generate = useServerFn(generateMedia);
   const enhance = useServerFn(enhancePrompt);
+  const checkAccess = useServerFn(getGenerationAccess);
 
   const runEnhance = async () => {
     const prompt = text.trim();
@@ -109,6 +110,30 @@ export function PromptBar({ onStart, onSettled, onGenerated, onQuotaExceeded }: 
   const submit = async () => {
     const prompt = text.trim();
     if (!prompt || busy) return;
+
+    // Contrôle d'accès avant tout appel au moteur : évite un appel inutile.
+    try {
+      const access = await checkAccess({
+        data: {
+          mediaType: mode,
+          seconds: mode === "video" ? Number(dur.replace(/\D/g, "")) || 0 : 0,
+        },
+      });
+      if (!access.allowed) {
+        playChime("error");
+        const message =
+          access.message ??
+          quotaMessage(access.code as "subscription_required", null, access.remainingSeconds);
+        setSent(message);
+        toast.error(message);
+        onQuotaExceeded?.();
+        setTimeout(() => setSent(null), 4000);
+        return;
+      }
+    } catch {
+      /* en cas d'indisponibilité du contrôle, on laisse le serveur trancher */
+    }
+
     setBusy(true);
     setText("");
     blurInput();
