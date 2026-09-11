@@ -2,6 +2,11 @@
 
 ## En cours
 - [ ] Obtenir de SwyChr le motif fournisseur du statut `failed` si le prochain essai échoue
+- [x] Adresse du moteur vidéo corrigée (text-to-video) + bucket `generations`
+- [x] Offre gratuite limitée à un seul compte par appareil (empreinte)
+- [x] Contrôle d'accès avant génération, avec invitation à s'abonner
+- [x] Numéros masqués retirés des opérateurs, Afrimoney retiré pour la RDC
+- [x] Correspondance universelle des réseaux pour tous les pays SwyChr
 - [x] Accepter le préfixe Orange RDC 080 et valider les réseaux côté serveur
 - [x] Numéro envoyé au format international strict (243XXXXXXXXX), payload complet et journaux détaillés
 - [x] Envoyer une invitation e-mail aux nouveaux membres de l’équipe
