@@ -384,9 +384,6 @@ export function CheckoutSheet({
                     className="flex w-full items-center justify-between rounded-2xl border border-border bg-card/40 px-4 py-3 text-left"
                   >
                     <span>{m.label}</span>
-                    {m.mobileFormat && (
-                      <span className="text-xs text-muted-foreground">{m.mobileFormat}</span>
-                    )}
                   </button>
                 </li>
               ))}
@@ -427,7 +424,7 @@ export function CheckoutSheet({
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 className="mt-1 w-full rounded-2xl border border-border bg-card/40 px-4 py-3"
-                placeholder={method?.mobileFormat ?? "Ex : 2376XXXXXXXX"}
+                placeholder="Votre numéro mobile"
               />
               {(method?.length || prefixes) && (
                 <p className="mt-1 text-xs text-muted-foreground">
