@@ -51,7 +51,16 @@ export const listPaymentMethods = createServerFn({ method: "POST" })
     const { fetchPayoutMethods } = await import("@/lib/services/swychr.server");
     const result = await fetchPayoutMethods(country.code);
     if (!result.ok) return { ok: false as const, message: result.message };
-    return { ok: true as const, methods: result.data };
+    // RDC : seuls Airtel, Orange et M-Pesa sont conservés (Afrimoney retiré).
+    const methods =
+      country.code === "CD"
+        ? result.data.filter((m) =>
+            ["airtel", "orange", "mpesa", "m-pesa", "vodacom"].some((k) =>
+              `${m.label} ${m.code}`.toLowerCase().includes(k),
+            ),
+          )
+        : result.data;
+    return { ok: true as const, methods };
   });
 
 /** Devis : conversion du prix EUR vers la devise locale du pays choisi. */
