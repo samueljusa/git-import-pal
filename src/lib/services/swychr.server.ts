@@ -139,6 +139,29 @@ export type PaymentLinkInput = {
   callbackUrl?: string;
 };
 
+/**
+ * Correspondance universelle nom d'opérateur -> clé réseau attendue par SwyChr.
+ * Utilisée pour tous les pays actifs (RDC, Cameroun, Sénégal, Guinée, etc.).
+ */
+const NETWORK_KEYS: { match: string[]; key: string }[] = [
+  { match: ["airtel"], key: "airtel" },
+  { match: ["mpesa", "m-pesa", "vodacom"], key: "mpesa" },
+  { match: ["orange"], key: "orange" },
+  { match: ["mtn"], key: "mtn" },
+  { match: ["moov"], key: "moov" },
+  { match: ["wave"], key: "wave" },
+  { match: ["free"], key: "free" },
+  { match: ["touchcash", "touch cash"], key: "touchcash" },
+  { match: ["africell"], key: "africell" },
+  { match: ["afrimoney"], key: "afrimoney" },
+];
+
+export function networkKey(method: string): string {
+  const value = method.toLowerCase();
+  const rule = NETWORK_KEYS.find((r) => r.match.some((m) => value.includes(m)));
+  return rule ? rule.key : value;
+}
+
 export type PaymentLink = {
   paymentLink: string;
   providerTransactionId: string | null;
