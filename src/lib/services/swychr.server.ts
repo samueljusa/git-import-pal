@@ -179,8 +179,8 @@ export async function createPaymentLink(
   const payload: Record<string, unknown> = {
     country_code: input.countryCode,
     payment_method: input.paymentMethod,
-    network: input.paymentMethod,
-    operator: input.paymentMethod,
+    network: networkKey(input.paymentMethod),
+    operator: networkKey(input.paymentMethod),
     name: input.name,
     transaction_id: input.transactionId,
     amount: input.amount,
