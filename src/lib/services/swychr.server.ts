@@ -162,6 +162,9 @@ export function networkKey(method: string): string {
   return rule ? rule.key : value;
 }
 
+/** Devises sans sous-unité : le montant doit être un entier. */
+const ZERO_DECIMAL_CURRENCIES = new Set(["CDF", "XAF", "XOF", "GNF", "RWF", "BIF", "UGX"]);
+
 export type PaymentLink = {
   paymentLink: string;
   providerTransactionId: string | null;
@@ -183,11 +186,15 @@ export async function createPaymentLink(
     operator: networkKey(input.paymentMethod),
     name: input.name,
     transaction_id: input.transactionId,
-    amount: input.amount,
+    // CDF/XAF/XOF/GNF… : aucun centime accepté par les passerelles mobile money.
+    amount: ZERO_DECIMAL_CURRENCIES.has(input.currency.toUpperCase())
+      ? Math.ceil(input.amount)
+      : Math.round(input.amount * 100) / 100,
     currency: input.currency,
     email: input.email,
-    mobile: input.mobile,
-    phone_number: input.mobile,
+    // Format international strict, sans « + », sans espace, sans 0 initial.
+    mobile: input.mobile.replace(/\D/g, "").replace(/^0+/, ""),
+    phone_number: input.mobile.replace(/\D/g, "").replace(/^0+/, ""),
     description: input.description,
     pass_digital_charge: true,
     ...(input.callbackUrl ? { callback_url: input.callbackUrl } : {}),

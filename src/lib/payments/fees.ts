@@ -29,7 +29,9 @@ export type FeeBreakdown = {
  * @param zeroDecimal devise sans centimes (XAF, XOF…) → arrondi à l'entier
  */
 export function addPaymentFees(amount: number, zeroDecimal: boolean): FeeBreakdown {
-  const round = (v: number) => (zeroDecimal ? Math.round(v) : Math.round(v * 100) / 100);
+  // Devises sans centimes (CDF, XAF, XOF, GNF…) : arrondi supérieur strict.
+  // Airtel Money RDC rejette automatiquement tout montant à virgule.
+  const round = (v: number) => (zeroDecimal ? Math.ceil(v) : Math.round(v * 100) / 100);
   const base = round(amount);
   const rawFee = base * FEE_PERCENT + FEE_FIXED_LOCAL;
   const fee = round(rawFee);
