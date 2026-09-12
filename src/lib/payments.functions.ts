@@ -261,6 +261,101 @@ export const startPayment = createServerFn({ method: "POST" })
     };
   });
 
+/** Origine publique stable utilisée pour les retours prestataire. */
+const PUBLIC_ORIGIN = "https://project--0eb49e5c-6fd1-4a1b-aac6-53a815ad5253-dev.lovable.app";
+
+/**
+ * Paiement par carte bancaire (Chariow) : enregistre la commande puis renvoie
+ * l'adresse de la page de paiement sécurisée, avec les métadonnées du compte.
+ */
+export const startCardPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        productId: z.string().min(1).max(40),
+        fullName: z.string().min(2).max(80),
+        period: z.enum(["monthly", "yearly"]).default("monthly"),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const email = typeof context.claims["email"] === "string" ? context.claims["email"] : null;
+    if (!email) return { ok: false as const, message: "Adresse e-mail du compte introuvable." };
+
+    const { data: price } = await context.supabase
+      .from("product_prices")
+      .select("id, label, tier, amount_eur, amount_eur_yearly")
+      .eq("id", data.productId)
+      .eq("active", true)
+      .maybeSingle();
+    if (!price) return { ok: false as const, message: "Offre introuvable." };
+
+    const amountEur =
+      data.period === "yearly" && price.amount_eur_yearly !== null
+        ? Number(price.amount_eur_yearly)
+        : Number(price.amount_eur);
+
+    const { planTypeFor } = await import("@/lib/plans");
+    const planType = planTypeFor(price.id, data.period);
+
+    const transactionId = crypto.randomUUID();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error: insertError } = await supabaseAdmin.from("orders").insert({
+      transaction_id: transactionId,
+      user_id: context.userId,
+      product_id: price.id,
+      tier: price.tier,
+      status: "en_attente",
+      period: data.period,
+      provider: "chariow",
+      amount_eur: amountEur,
+      amount_local: amountEur,
+      currency: "EUR",
+      exchange_rate: 1,
+      country_code: "EU",
+      payment_method: "card",
+      mobile: "-",
+      customer_name: data.fullName,
+      customer_email: email,
+    });
+    if (insertError) return { ok: false as const, message: "Impossible d'enregistrer la commande." };
+
+    const { createCardCheckout } = await import("@/lib/services/chariow.server");
+    const result = await createCardCheckout({
+      productId: price.id,
+      period: data.period,
+      planType,
+      label: price.label,
+      amountEur,
+      transactionId,
+      userId: context.userId,
+      email,
+      fullName: data.fullName,
+      successUrl: `${PUBLIC_ORIGIN}/checkout/success?transaction_id=${transactionId}`,
+      callbackUrl: `${PUBLIC_ORIGIN}/api/public/webhooks/chariow`,
+    });
+
+    if (!result.ok) {
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "echouee", error_message: result.message })
+        .eq("transaction_id", transactionId);
+      return { ok: false as const, message: result.message };
+    }
+
+    await supabaseAdmin
+      .from("orders")
+      .update({
+        payment_link: result.data.url,
+        provider_session_id: result.data.sessionId,
+      })
+      .eq("transaction_id", transactionId);
+
+    return { ok: true as const, transactionId, checkoutUrl: result.data.url, amountEur };
+  });
+
 /** Statut d'une commande : vérifié chez le prestataire puis renvoyé au client. */
 export const getOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
