@@ -19,6 +19,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicWebhooksChariowRouteImport } from './routes/api/public/webhooks/chariow'
 import { Route as ApiPublicWebhooksPaymentFailedRouteImport } from './routes/api/public/webhooks/payment-failed'
 import { Route as ApiPublicWebhooksPaymentSuccessRouteImport } from './routes/api/public/webhooks/payment-success'
 import { Route as ApiPublicWebhooksSwychrRouteImport } from './routes/api/public/webhooks/swychr'
@@ -76,6 +77,12 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksChariowRoute =
+  ApiPublicWebhooksChariowRouteImport.update({
+    id: '/api/public/webhooks/chariow',
+    path: '/api/public/webhooks/chariow',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksPaymentFailedRoute =
   ApiPublicWebhooksPaymentFailedRouteImport.update({
     id: '/api/public/webhooks/payment-failed',
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/webhooks/chariow': typeof ApiPublicWebhooksChariowRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
   '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
@@ -120,6 +128,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/webhooks/chariow': typeof ApiPublicWebhooksChariowRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
   '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
@@ -136,6 +145,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/webhooks/chariow': typeof ApiPublicWebhooksChariowRoute
   '/api/public/webhooks/payment-failed': typeof ApiPublicWebhooksPaymentFailedRoute
   '/api/public/webhooks/payment-success': typeof ApiPublicWebhooksPaymentSuccessRoute
   '/api/public/webhooks/swychr': typeof ApiPublicWebhooksSwychrRoute
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/webhooks/chariow'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
     | '/api/public/webhooks/swychr'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/webhooks/chariow'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
     | '/api/public/webhooks/swychr'
@@ -183,6 +195,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/webhooks/chariow'
     | '/api/public/webhooks/payment-failed'
     | '/api/public/webhooks/payment-success'
     | '/api/public/webhooks/swychr'
@@ -199,6 +212,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicWebhooksChariowRoute: typeof ApiPublicWebhooksChariowRoute
   ApiPublicWebhooksPaymentFailedRoute: typeof ApiPublicWebhooksPaymentFailedRoute
   ApiPublicWebhooksPaymentSuccessRoute: typeof ApiPublicWebhooksPaymentSuccessRoute
   ApiPublicWebhooksSwychrRoute: typeof ApiPublicWebhooksSwychrRoute
@@ -276,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/chariow': {
+      id: '/api/public/webhooks/chariow'
+      path: '/api/public/webhooks/chariow'
+      fullPath: '/api/public/webhooks/chariow'
+      preLoaderRoute: typeof ApiPublicWebhooksChariowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/payment-failed': {
       id: '/api/public/webhooks/payment-failed'
       path: '/api/public/webhooks/payment-failed'
@@ -312,6 +333,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicWebhooksChariowRoute: ApiPublicWebhooksChariowRoute,
   ApiPublicWebhooksPaymentFailedRoute: ApiPublicWebhooksPaymentFailedRoute,
   ApiPublicWebhooksPaymentSuccessRoute: ApiPublicWebhooksPaymentSuccessRoute,
   ApiPublicWebhooksSwychrRoute: ApiPublicWebhooksSwychrRoute,
