@@ -162,6 +162,9 @@ export function networkKey(method: string): string {
   return rule ? rule.key : value;
 }
 
+/** Devises sans sous-unité : le montant doit être un entier. */
+const ZERO_DECIMAL_CURRENCIES = new Set(["CDF", "XAF", "XOF", "GNF", "RWF", "BIF", "UGX"]);
+
 export type PaymentLink = {
   paymentLink: string;
   providerTransactionId: string | null;
