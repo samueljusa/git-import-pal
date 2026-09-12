@@ -270,8 +270,10 @@ export type Database = {
           payment_method: string
           period: string
           product_id: string
+          provider: string
           provider_message: string | null
           provider_response: Json | null
+          provider_session_id: string | null
           provider_transaction_id: string | null
           status: string
           tier: string
@@ -297,8 +299,10 @@ export type Database = {
           payment_method: string
           period?: string
           product_id: string
+          provider?: string
           provider_message?: string | null
           provider_response?: Json | null
+          provider_session_id?: string | null
           provider_transaction_id?: string | null
           status?: string
           tier: string
@@ -324,8 +328,10 @@ export type Database = {
           payment_method?: string
           period?: string
           product_id?: string
+          provider?: string
           provider_message?: string | null
           provider_response?: Json | null
+          provider_session_id?: string | null
           provider_transaction_id?: string | null
           status?: string
           tier?: string
